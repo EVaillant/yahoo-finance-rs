@@ -27,6 +27,8 @@ pub enum Interval {
     YearToDate,
     #[serde(rename = "max")]
     Max,
+    #[serde(rename = "")]
+    Empty,
 }
 
 impl std::fmt::Display for Interval {
@@ -43,6 +45,7 @@ impl std::fmt::Display for Interval {
             Interval::Year10 => write!(f, "10y"),
             Interval::YearToDate => write!(f, "ytd"),
             Interval::Max => write!(f, "max"),
+            Interval::Empty => write!(f, ""),
         }
     }
 }

@@ -40,6 +40,17 @@ fn parse_period(arg: &str) -> Result<(chrono::NaiveDate, chrono::NaiveDate), cla
 fn parse_interval(arg: &str) -> Result<Interval, clap::Error> {
     match arg {
         "1d" => Ok(Interval::Day1),
+        "5d" => Ok(Interval::Day5),
+        "1mo" => Ok(Interval::Month1),
+        "3mo" => Ok(Interval::Month3),
+        "6mo" => Ok(Interval::Month6),
+        "1y" => Ok(Interval::Year1),
+        "2y" => Ok(Interval::Year2),
+        "5y" => Ok(Interval::Year5),
+        "10y" => Ok(Interval::Year10),
+        "ytd" => Ok(Interval::YearToDate),
+        "max" => Ok(Interval::Max),
+        "empty" => Ok(Interval::Empty),
         _ => Err(clap::Error::new(clap::error::ErrorKind::ValueValidation)),
     }
 }
