@@ -72,7 +72,7 @@ pub struct YahooChart {
 #[derive(Debug, Deserialize)]
 pub struct YahooChartResult {
     pub meta: YahooMeta,
-    #[serde(deserialize_with = "from_opt_vector_timestamp")]
+    #[serde(deserialize_with = "from_opt_vector_timestamp", default)]
     pub timestamp: Option<Vec<chrono::NaiveDateTime>>,
     pub indicators: YahooChartIndicators,
 }
@@ -104,9 +104,17 @@ pub struct YahooMeta {
     pub full_exchange_name: Option<String>,
     #[serde(rename = "instrumentType")]
     pub instrument_type: Option<String>,
-    #[serde(rename = "firstTradeDate", deserialize_with = "from_opt_timestamp")]
+    #[serde(
+        rename = "firstTradeDate",
+        deserialize_with = "from_opt_timestamp",
+        default
+    )]
     pub first_trade_date: Option<chrono::NaiveDateTime>,
-    #[serde(rename = "regularMarketTime", deserialize_with = "from_opt_timestamp")]
+    #[serde(
+        rename = "regularMarketTime",
+        deserialize_with = "from_opt_timestamp",
+        default
+    )]
     pub regular_market_time: Option<chrono::NaiveDateTime>,
     #[serde(rename = "hasPrePostMarketData")]
     pub has_pre_post_market_data: Option<bool>,
@@ -143,9 +151,13 @@ pub struct YahooMeta {
     pub trading_periods: Option<Vec<Vec<TradingPeriod>>>,
     #[serde(rename = "dataGranularity")]
     pub data_granularity: Option<String>,
-    #[serde(rename = "range", deserialize_with = "maybe_empty_range")]
+    #[serde(rename = "range", deserialize_with = "maybe_empty_range", default)]
     pub range: Option<Interval>,
-    #[serde(rename = "validRanges", deserialize_with = "from_opt_vec_interval")]
+    #[serde(
+        rename = "validRanges",
+        deserialize_with = "from_opt_vec_interval",
+        default
+    )]
     pub valid_ranges: Option<Vec<Interval>>,
 }
 
