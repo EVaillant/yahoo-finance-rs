@@ -2,33 +2,21 @@ use log::debug;
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Deserializer};
+use std::str::FromStr;
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug)]
 pub enum Interval {
-    #[serde(rename = "1d")]
     Day1,
-    #[serde(rename = "5d")]
     Day5,
-    #[serde(rename = "1mo")]
     Month1,
-    #[serde(rename = "3mo")]
     Month3,
-    #[serde(rename = "6mo")]
     Month6,
-    #[serde(rename = "1y")]
     Year1,
-    #[serde(rename = "2y")]
     Year2,
-    #[serde(rename = "5y")]
     Year5,
-    #[serde(rename = "10y")]
     Year10,
-    #[serde(rename = "ytd")]
     YearToDate,
-    #[serde(rename = "max")]
     Max,
-    #[serde(rename = "")]
-    Empty,
 }
 
 impl std::fmt::Display for Interval {
@@ -45,7 +33,29 @@ impl std::fmt::Display for Interval {
             Interval::Year10 => write!(f, "10y"),
             Interval::YearToDate => write!(f, "ytd"),
             Interval::Max => write!(f, "max"),
-            Interval::Empty => write!(f, ""),
+        }
+    }
+}
+
+pub struct ParseIntervalError;
+
+impl FromStr for Interval {
+    type Err = ParseIntervalError;
+
+    fn from_str(arg: &str) -> Result<Self, Self::Err> {
+        match arg {
+            "1d" => Ok(Interval::Day1),
+            "5d" => Ok(Interval::Day5),
+            "1mo" => Ok(Interval::Month1),
+            "3mo" => Ok(Interval::Month3),
+            "6mo" => Ok(Interval::Month6),
+            "1y" => Ok(Interval::Year1),
+            "2y" => Ok(Interval::Year2),
+            "5y" => Ok(Interval::Year5),
+            "10y" => Ok(Interval::Year10),
+            "ytd" => Ok(Interval::YearToDate),
+            "max" => Ok(Interval::Max),
+            _ => Err(ParseIntervalError),
         }
     }
 }
@@ -133,8 +143,9 @@ pub struct YahooMeta {
     pub trading_periods: Option<Vec<Vec<TradingPeriod>>>,
     #[serde(rename = "dataGranularity")]
     pub data_granularity: Option<String>,
+    #[serde(rename = "range", deserialize_with = "maybe_empty_range")]
     pub range: Option<Interval>,
-    #[serde(rename = "validRanges")]
+    #[serde(rename = "validRanges", deserialize_with = "from_opt_vec_interval")]
     pub valid_ranges: Option<Vec<Interval>>,
 }
 
@@ -150,6 +161,40 @@ pub struct YahooChartQuote {
     pub close: Option<Vec<Option<f64>>>,
     pub high: Option<Vec<Option<f64>>>,
     pub volume: Option<Vec<Option<f64>>>,
+}
+
+fn maybe_empty_range<'de, D>(deserializer: D) -> Result<Option<Interval>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de::Error;
+    let data: Option<String> = Deserialize::deserialize(deserializer)?;
+    if let Some(value) = data.filter(|v| !v.is_empty()) {
+        Interval::from_str(&value)
+            .map(Some)
+            .map_err(|_| Error::custom(format!("invalid interval '{value}'")))
+    } else {
+        Ok(None)
+    }
+}
+
+fn from_opt_vec_interval<'de, D>(deserializer: D) -> Result<Option<Vec<Interval>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de::Error;
+    let data: Option<Vec<String>> = Deserialize::deserialize(deserializer)?;
+    if let Some(data) = data {
+        let mut result = Vec::with_capacity(data.len());
+        for value in data.into_iter() {
+            let interval = Interval::from_str(&value)
+                .map_err(|_| Error::custom(format!("invalid interval '{value}'")))?;
+            result.push(interval);
+        }
+        Ok(Some(result))
+    } else {
+        Ok(None)
+    }
 }
 
 fn from_timestamp<'de, D>(deserializer: D) -> Result<chrono::NaiveDateTime, D::Error>
