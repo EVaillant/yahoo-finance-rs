@@ -363,8 +363,12 @@ impl YahooBuilder {
         headers.insert("Connection", HeaderValue::from_static("keep-alive"));
         headers.insert("Expires", HeaderValue::from_static("-1"));
         headers.insert("Upgrade-Insecure-Requests", HeaderValue::from_static("1"));
-        headers.insert("User-Agent", HeaderValue::from_static("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"));
-
+        headers.insert(
+            "User-Agent",
+            HeaderValue::from_static(
+                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)",
+            ),
+        );
         let client = Client::builder()
             .cookie_store(true)
             .default_headers(headers)
