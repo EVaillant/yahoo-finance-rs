@@ -310,7 +310,7 @@ impl YahooBuilder {
         let url = format!("https://query1.finance.yahoo.com/v8/finance/chart/{ticker}");
         let query = self.make_chart_query();
 
-        debug!("request chart on '{url}' with query: {:?}", query);
+        debug!("request chart on '{url}' with query: {query:?}");
 
         let output = self
             .make_http_client()?

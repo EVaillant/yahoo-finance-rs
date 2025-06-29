@@ -1,8 +1,8 @@
 use chrono::Local;
 use clap::Parser;
 use env_logger::Builder;
-use log::info;
 use log::LevelFilter;
+use log::info;
 use std::io::Write;
 use std::str::FromStr;
 
@@ -72,5 +72,5 @@ fn main() {
         builder.set_interval(interval);
     }
     let result = builder.request_chart().expect("request failed");
-    info!("{:?}", result);
+    info!("{result:?}");
 }
